@@ -1,0 +1,140 @@
+[
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "IsolationForest",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "streamlit",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "streamlit",
+        "description": "streamlit",
+        "detail": "streamlit",
+        "documentation": {}
+    },
+    {
+        "label": "build_windows",
+        "importPath": "app.features.build_features",
+        "description": "app.features.build_features",
+        "isExtraImport": true,
+        "detail": "app.features.build_features",
+        "documentation": {}
+    },
+    {
+        "label": "detect",
+        "importPath": "app.models.detector",
+        "description": "app.models.detector",
+        "isExtraImport": true,
+        "detail": "app.models.detector",
+        "documentation": {}
+    },
+    {
+        "label": "build_windows",
+        "kind": 2,
+        "importPath": "app.features.build_features",
+        "description": "app.features.build_features",
+        "peekOfCode": "def build_windows(src_path=SRC, freq=\"1min\"):\n    df = pd.read_csv(src_path, parse_dates=[\"time\"])\n    if df.empty:\n        OUT.write_text(\"\"); return pd.DataFrame()\n    df[\"minute\"] = df[\"time\"].dt.floor(freq)\n    g = (df.groupby([\"client_ip\",\"minute\"])\n           .agg(qpm=(\"domain\",\"count\"),\n                uniq=(\"domain\",\"nunique\"),\n                avg_len=(\"domain\", lambda s: s.str.len().mean()))\n           .reset_index().fillna(0))",
+        "detail": "app.features.build_features",
+        "documentation": {}
+    },
+    {
+        "label": "SRC",
+        "kind": 5,
+        "importPath": "app.features.build_features",
+        "description": "app.features.build_features",
+        "peekOfCode": "SRC = Path(\"data/sample_dns.csv\")\nOUT = Path(\"data/features.csv\")\ndef build_windows(src_path=SRC, freq=\"1min\"):\n    df = pd.read_csv(src_path, parse_dates=[\"time\"])\n    if df.empty:\n        OUT.write_text(\"\"); return pd.DataFrame()\n    df[\"minute\"] = df[\"time\"].dt.floor(freq)\n    g = (df.groupby([\"client_ip\",\"minute\"])\n           .agg(qpm=(\"domain\",\"count\"),\n                uniq=(\"domain\",\"nunique\"),",
+        "detail": "app.features.build_features",
+        "documentation": {}
+    },
+    {
+        "label": "OUT",
+        "kind": 5,
+        "importPath": "app.features.build_features",
+        "description": "app.features.build_features",
+        "peekOfCode": "OUT = Path(\"data/features.csv\")\ndef build_windows(src_path=SRC, freq=\"1min\"):\n    df = pd.read_csv(src_path, parse_dates=[\"time\"])\n    if df.empty:\n        OUT.write_text(\"\"); return pd.DataFrame()\n    df[\"minute\"] = df[\"time\"].dt.floor(freq)\n    g = (df.groupby([\"client_ip\",\"minute\"])\n           .agg(qpm=(\"domain\",\"count\"),\n                uniq=(\"domain\",\"nunique\"),\n                avg_len=(\"domain\", lambda s: s.str.len().mean()))",
+        "detail": "app.features.build_features",
+        "documentation": {}
+    },
+    {
+        "label": "detect",
+        "kind": 2,
+        "importPath": "app.models.detector",
+        "description": "app.models.detector",
+        "peekOfCode": "def detect(features_path=FEAT):\n    if not Path(features_path).exists():\n        print(\"No features file found. Run the feature builder first.\")\n        return pd.DataFrame()\n    df = pd.read_csv(features_path, parse_dates=[\"minute\"])\n    if df.empty:\n        print(\"Features file is empty.\")\n        return pd.DataFrame(columns=[\"client_ip\",\"minute\",\"qpm\",\"uniq\",\"avg_len\",\"score\"])\n    rows = []\n    for dev, grp in df.groupby(\"client_ip\"):",
+        "detail": "app.models.detector",
+        "documentation": {}
+    },
+    {
+        "label": "FEAT",
+        "kind": 5,
+        "importPath": "app.models.detector",
+        "description": "app.models.detector",
+        "peekOfCode": "FEAT = Path(\"data/features.csv\")\nALERTS = Path(\"data/alerts.csv\")\nMIN_HISTORY = 2  # was 5; lower for sample data\ndef detect(features_path=FEAT):\n    if not Path(features_path).exists():\n        print(\"No features file found. Run the feature builder first.\")\n        return pd.DataFrame()\n    df = pd.read_csv(features_path, parse_dates=[\"minute\"])\n    if df.empty:\n        print(\"Features file is empty.\")",
+        "detail": "app.models.detector",
+        "documentation": {}
+    },
+    {
+        "label": "ALERTS",
+        "kind": 5,
+        "importPath": "app.models.detector",
+        "description": "app.models.detector",
+        "peekOfCode": "ALERTS = Path(\"data/alerts.csv\")\nMIN_HISTORY = 2  # was 5; lower for sample data\ndef detect(features_path=FEAT):\n    if not Path(features_path).exists():\n        print(\"No features file found. Run the feature builder first.\")\n        return pd.DataFrame()\n    df = pd.read_csv(features_path, parse_dates=[\"minute\"])\n    if df.empty:\n        print(\"Features file is empty.\")\n        return pd.DataFrame(columns=[\"client_ip\",\"minute\",\"qpm\",\"uniq\",\"avg_len\",\"score\"])",
+        "detail": "app.models.detector",
+        "documentation": {}
+    },
+    {
+        "label": "MIN_HISTORY",
+        "kind": 5,
+        "importPath": "app.models.detector",
+        "description": "app.models.detector",
+        "peekOfCode": "MIN_HISTORY = 2  # was 5; lower for sample data\ndef detect(features_path=FEAT):\n    if not Path(features_path).exists():\n        print(\"No features file found. Run the feature builder first.\")\n        return pd.DataFrame()\n    df = pd.read_csv(features_path, parse_dates=[\"minute\"])\n    if df.empty:\n        print(\"Features file is empty.\")\n        return pd.DataFrame(columns=[\"client_ip\",\"minute\",\"qpm\",\"uniq\",\"avg_len\",\"score\"])\n    rows = []",
+        "detail": "app.models.detector",
+        "documentation": {}
+    },
+    {
+        "label": "alerts_p",
+        "kind": 5,
+        "importPath": "app.web.dashboard",
+        "description": "app.web.dashboard",
+        "peekOfCode": "alerts_p = Path(\"data/alerts.csv\")\nfeats_p  = Path(\"data/features.csv\")\nst.subheader(\"Top anomalies (latest minute)\")\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    st.dataframe(alerts[[\"client_ip\",\"minute\",\"qpm\",\"uniq\",\"avg_len\",\"score\"]])\nelse:\n    st.info(\"No alerts yet. Click Refresh above.\")\nst.subheader(\"Recent feature windows\")\nif feats_p.exists():",
+        "detail": "app.web.dashboard",
+        "documentation": {}
+    }
+]

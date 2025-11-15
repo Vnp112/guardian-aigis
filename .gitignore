@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Local data logs (keep private)
+data/*.csv
+data/*.json
+data/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
