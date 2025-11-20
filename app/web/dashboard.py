@@ -2,7 +2,7 @@ import streamlit as st, pandas as pd
 from pathlib import Path
 from app.features.build_features import build_windows
 from app.models.detector import detect
-from app.ingest.adguard_fetch import adguard_fetch
+from app.ingest.adguard_ingest import adguard_ingest_from_file
 
 alerts_p = Path("data/alerts.csv")
 feats_p  = Path("data/features.csv")
