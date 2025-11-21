@@ -61,10 +61,10 @@ if len(ip_list) > 0 and not alerts.empty:
 
         if not history.empty:
             history["minute"] = pd.to_datetime(history["minute"])
-            score_chart, qpm_chart, uniq_chart = st.columns(3)
+            avg_len, qpm_chart, uniq_chart = st.columns(3)
 
-            score_chart.subheader("Anomaly Score")
-            score_chart.line_chart(data=history.set_index("minute")["score"])
+            avg_len.subheader("Average Query Length")
+            avg_len.line_chart(data=history.set_index("minute")["avg_len"])
 
             qpm_chart.subheader("Queries Per Minute")
             qpm_chart.line_chart(data=history.set_index("minute")["qpm"])

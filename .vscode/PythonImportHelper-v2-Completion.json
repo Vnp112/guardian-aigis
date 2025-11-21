@@ -1,5 +1,53 @@
 [
     {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
         "label": "pandas",
         "kind": 6,
         "isExtraImport": true,
@@ -9,35 +57,12 @@
         "documentation": {}
     },
     {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
+        "label": "json",
+        "kind": 6,
         "isExtraImport": true,
-        "detail": "pathlib",
-        "documentation": {}
-    },
-    {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
-        "isExtraImport": true,
-        "detail": "pathlib",
-        "documentation": {}
-    },
-    {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
-        "isExtraImport": true,
-        "detail": "pathlib",
-        "documentation": {}
-    },
-    {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
-        "isExtraImport": true,
-        "detail": "pathlib",
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
         "documentation": {}
     },
     {
@@ -83,11 +108,110 @@
         "documentation": {}
     },
     {
-        "label": "adguard_fetch",
-        "importPath": "app.ingest.adguard_fetch",
-        "description": "app.ingest.adguard_fetch",
+        "label": "adguard_ingest_from_file",
+        "importPath": "app.ingest.adguard_ingest",
+        "description": "app.ingest.adguard_ingest",
         "isExtraImport": true,
-        "detail": "app.ingest.adguard_fetch",
+        "detail": "app.ingest.adguard_ingest",
+        "documentation": {}
+    },
+    {
+        "label": "load_file",
+        "kind": 2,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "def load_file(file):\n    if not file.exists():\n        return pd.DataFrame()\n    return pd.read_csv(file)\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int):\n    return {\"item_id\": item_id}",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "hello",
+        "kind": 2,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "def hello(name: str):\n    return {\"message\": f\"Hello, {name}\"}\n@app.get(\"/alerts\")\ndef get_alerts():\n    path = Path(\"data/alerts.csv\")\n    # if not path.exists():\n    #     return {\"alerts\": []}\n    # alerts_csv = pd.read_csv(path)\n    alerts_csv = load_file(path)\n    # Iterative method",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_alerts",
+        "kind": 2,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "def get_alerts():\n    path = Path(\"data/alerts.csv\")\n    # if not path.exists():\n    #     return {\"alerts\": []}\n    # alerts_csv = pd.read_csv(path)\n    alerts_csv = load_file(path)\n    # Iterative method\n    # rows = []\n    # for idx, row in alerts_csv.iterrows():\n    #     rows.append({\"client_ip\": row[\"client_ip\"],",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_devices",
+        "kind": 2,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "def get_devices():\n    path = Path(\"data/features.csv\")\n    features_csv = load_file(path)\n    rows = features_csv.to_dict(orient=\"records\")\n    devices = sorted(set([row[\"client_ip\"] for row in rows]))\n    return {\"devices\": devices}\n@app.get(\"/devices/{ip}/history\")\ndef get_device_history(ip: str):\n    path = Path(\"data/features.csv\")\n    features_csv = load_file(path)",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_device_history",
+        "kind": 2,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "def get_device_history(ip: str):\n    path = Path(\"data/features.csv\")\n    features_csv = load_file(path)\n    if not path.exists():\n        return {\"ip\": ip, \"history\": []}\n    ip_data = features_csv[features_csv[\"client_ip\"] == ip].sort_values(\"minute\")\n    ip_data = ip_data.to_dict(orient=\"records\")\n    return{\"ip\": ip, \"history\": ip_data}\n@app.get(\"/features\")\ndef get_features():",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "get_features",
+        "kind": 2,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "def get_features():\n    path = Path(\"data/features.csv\")\n    if not path.exists():\n        return {\"features\": []}\n    features_csv = load_file(path)\n    features = features_csv.to_dict(orient=\"records\")\n    return {\"features\": features}",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "app.api.main",
+        "description": "app.api.main",
+        "peekOfCode": "app = FastAPI()\ndef load_file(file):\n    if not file.exists():\n        return pd.DataFrame()\n    return pd.read_csv(file)\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int):",
+        "detail": "app.api.main",
+        "documentation": {}
+    },
+    {
+        "label": "test_alerts",
+        "kind": 2,
+        "importPath": "app.api.test_api_client",
+        "description": "app.api.test_api_client",
+        "peekOfCode": "def test_alerts():\n    r = requests.get(f\"{BASE}/alerts\", timeout=5)\n    print(\"Status:\", r.status_code)\n    data = r.json()\n    print(\"Keys:\", data.keys())\n    print(\"First alert:\", data[\"alerts\"][0] if data[\"alerts\"] else None)\ndef test_devices():\n    r = requests.get(f\"{BASE}/devices\", timeout=5)\n    print(\"Devices:\", r.json()[\"devices\"])\ndef test_history(ip: str):",
+        "detail": "app.api.test_api_client",
+        "documentation": {}
+    },
+    {
+        "label": "test_devices",
+        "kind": 2,
+        "importPath": "app.api.test_api_client",
+        "description": "app.api.test_api_client",
+        "peekOfCode": "def test_devices():\n    r = requests.get(f\"{BASE}/devices\", timeout=5)\n    print(\"Devices:\", r.json()[\"devices\"])\ndef test_history(ip: str):\n    r = requests.get(f\"{BASE}/devices/{ip}/history\", timeout=5)\n    data = r.json()\n    print(\"IP:\", data[\"ip\"])\n    print(\"Num windows:\", len(data[\"history\"]))\nif __name__ == \"__main__\":\n    test_alerts()",
+        "detail": "app.api.test_api_client",
+        "documentation": {}
+    },
+    {
+        "label": "test_history",
+        "kind": 2,
+        "importPath": "app.api.test_api_client",
+        "description": "app.api.test_api_client",
+        "peekOfCode": "def test_history(ip: str):\n    r = requests.get(f\"{BASE}/devices/{ip}/history\", timeout=5)\n    data = r.json()\n    print(\"IP:\", data[\"ip\"])\n    print(\"Num windows:\", len(data[\"history\"]))\nif __name__ == \"__main__\":\n    test_alerts()\n    test_devices()\n    test_history(\"192.168.8.135\")  # swap with one from /devices",
+        "detail": "app.api.test_api_client",
+        "documentation": {}
+    },
+    {
+        "label": "BASE",
+        "kind": 5,
+        "importPath": "app.api.test_api_client",
+        "description": "app.api.test_api_client",
+        "peekOfCode": "BASE = \"http://127.0.0.1:8000\"\ndef test_alerts():\n    r = requests.get(f\"{BASE}/alerts\", timeout=5)\n    print(\"Status:\", r.status_code)\n    data = r.json()\n    print(\"Keys:\", data.keys())\n    print(\"First alert:\", data[\"alerts\"][0] if data[\"alerts\"] else None)\ndef test_devices():\n    r = requests.get(f\"{BASE}/devices\", timeout=5)\n    print(\"Devices:\", r.json()[\"devices\"])",
+        "detail": "app.api.test_api_client",
         "documentation": {}
     },
     {
@@ -118,11 +242,11 @@
         "documentation": {}
     },
     {
-        "label": "adguard_fetch",
+        "label": "adguard_ingest_from_file",
         "kind": 2,
         "importPath": "app.ingest.adguard_ingest",
         "description": "app.ingest.adguard_ingest",
-        "peekOfCode": "def adguard_fetch(out_path: Path = OUT):\n    \"\"\"\n    Fetch DNS logs from AdGuard Home on the Flint2 and write\n    a normalized CSV with columns: time, client_ip, domain, qtype.\n    \"\"\"\n    # 1. GET request to ADGUARD_URL (with timeout)\n    # 2. resp.json() -> dict; pull entries = dict[\"data\"]\n    # 3. Build a list of dicts with keys: time, client_ip, domain, qtype\n    # 4. Create DataFrame from that list\n    # 5. Save to CSV at out_path",
+        "peekOfCode": "def adguard_ingest_from_file(json_path: Path = JSON_IN, out_path: Path = OUT):\n    \"\"\"\n    Read an AdGuard querylog JSON file (with top-level 'data' list),\n    normalize to time,client_ip,domain,qtype and write CSV.\n    \"\"\"\n    with open(JSON_IN) as f:\n        obj = json.load(f)\n    entries = obj[\"data\"]\n    rows = []\n    for entry in entries:",
         "detail": "app.ingest.adguard_ingest",
         "documentation": {}
     },
@@ -131,7 +255,16 @@
         "kind": 5,
         "importPath": "app.ingest.adguard_ingest",
         "description": "app.ingest.adguard_ingest",
-        "peekOfCode": "ADGUARD_URL = \"http://192.168.8.1/control/querylog?limit=1000\"\nOUT = Path(\"data/sample_dns.csv\")\nresp = requests.get(ADGUARD_URL)\nprint(resp.status_code)\nprint(resp.text[:200])\n#data = resp.json()\ndef adguard_fetch(out_path: Path = OUT):\n    \"\"\"\n    Fetch DNS logs from AdGuard Home on the Flint2 and write\n    a normalized CSV with columns: time, client_ip, domain, qtype.",
+        "peekOfCode": "ADGUARD_URL = \"http://192.168.8.1/control/querylog?limit=1000\"\nJSON_IN = Path(\"data/querylog.json\")\nOUT = Path(\"data/sample_dns.csv\")\n# resp = requests.get(ADGUARD_URL)\n# data = resp.json()\n# print(resp.status.code)\n# print(resp.text[:200])\ndef adguard_ingest_from_file(json_path: Path = JSON_IN, out_path: Path = OUT):\n    \"\"\"\n    Read an AdGuard querylog JSON file (with top-level 'data' list),",
+        "detail": "app.ingest.adguard_ingest",
+        "documentation": {}
+    },
+    {
+        "label": "JSON_IN",
+        "kind": 5,
+        "importPath": "app.ingest.adguard_ingest",
+        "description": "app.ingest.adguard_ingest",
+        "peekOfCode": "JSON_IN = Path(\"data/querylog.json\")\nOUT = Path(\"data/sample_dns.csv\")\n# resp = requests.get(ADGUARD_URL)\n# data = resp.json()\n# print(resp.status.code)\n# print(resp.text[:200])\ndef adguard_ingest_from_file(json_path: Path = JSON_IN, out_path: Path = OUT):\n    \"\"\"\n    Read an AdGuard querylog JSON file (with top-level 'data' list),\n    normalize to time,client_ip,domain,qtype and write CSV.",
         "detail": "app.ingest.adguard_ingest",
         "documentation": {}
     },
@@ -140,25 +273,7 @@
         "kind": 5,
         "importPath": "app.ingest.adguard_ingest",
         "description": "app.ingest.adguard_ingest",
-        "peekOfCode": "OUT = Path(\"data/sample_dns.csv\")\nresp = requests.get(ADGUARD_URL)\nprint(resp.status_code)\nprint(resp.text[:200])\n#data = resp.json()\ndef adguard_fetch(out_path: Path = OUT):\n    \"\"\"\n    Fetch DNS logs from AdGuard Home on the Flint2 and write\n    a normalized CSV with columns: time, client_ip, domain, qtype.\n    \"\"\"",
-        "detail": "app.ingest.adguard_ingest",
-        "documentation": {}
-    },
-    {
-        "label": "resp",
-        "kind": 5,
-        "importPath": "app.ingest.adguard_ingest",
-        "description": "app.ingest.adguard_ingest",
-        "peekOfCode": "resp = requests.get(ADGUARD_URL)\nprint(resp.status_code)\nprint(resp.text[:200])\n#data = resp.json()\ndef adguard_fetch(out_path: Path = OUT):\n    \"\"\"\n    Fetch DNS logs from AdGuard Home on the Flint2 and write\n    a normalized CSV with columns: time, client_ip, domain, qtype.\n    \"\"\"\n    # 1. GET request to ADGUARD_URL (with timeout)",
-        "detail": "app.ingest.adguard_ingest",
-        "documentation": {}
-    },
-    {
-        "label": "#data",
-        "kind": 5,
-        "importPath": "app.ingest.adguard_ingest",
-        "description": "app.ingest.adguard_ingest",
-        "peekOfCode": "#data = resp.json()\ndef adguard_fetch(out_path: Path = OUT):\n    \"\"\"\n    Fetch DNS logs from AdGuard Home on the Flint2 and write\n    a normalized CSV with columns: time, client_ip, domain, qtype.\n    \"\"\"\n    # 1. GET request to ADGUARD_URL (with timeout)\n    # 2. resp.json() -> dict; pull entries = dict[\"data\"]\n    # 3. Build a list of dicts with keys: time, client_ip, domain, qtype\n    # 4. Create DataFrame from that list",
+        "peekOfCode": "OUT = Path(\"data/sample_dns.csv\")\n# resp = requests.get(ADGUARD_URL)\n# data = resp.json()\n# print(resp.status.code)\n# print(resp.text[:200])\ndef adguard_ingest_from_file(json_path: Path = JSON_IN, out_path: Path = OUT):\n    \"\"\"\n    Read an AdGuard querylog JSON file (with top-level 'data' list),\n    normalize to time,client_ip,domain,qtype and write CSV.\n    \"\"\"",
         "detail": "app.ingest.adguard_ingest",
         "documentation": {}
     },
@@ -199,47 +314,47 @@
         "documentation": {}
     },
     {
-        "label": "alerts_p",
-        "kind": 5,
+        "label": "get_json",
+        "kind": 2,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "alerts_p = Path(\"data/alerts.csv\")\nfeats_p  = Path(\"data/features.csv\")\nst.set_page_config(page_title=\"Guardian AIGIS — Phase 1\", layout=\"wide\")\nif st.button(\"Refresh (Build → Detect)\"):\n    build_windows()\n    detect()\nnum_devices = 0\nhighest_anomaly_score = 0.0\nlast_time = None\nip_list = []",
+        "peekOfCode": "def get_json(path: str):\n    r = requests.get(f\"{URL}{path}\", timeout=5)\n    r.raise_for_status()\n    return r.json()\nalerts_resp = get_json(\"/alerts\")\nfeatures_resp = get_json(\"/features\")\ndevices_resp = get_json(\"/devices\")\nalerts = pd.DataFrame(alerts_resp[\"alerts\"])\nfeats = pd.DataFrame(features_resp[\"features\"])\nst.set_page_config(page_title=\"Guardian AIGIS\", layout=\"wide\")",
         "detail": "app.web.dashboard",
         "documentation": {}
     },
     {
-        "label": "num_devices",
+        "label": "URL",
         "kind": 5,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "num_devices = 0\nhighest_anomaly_score = 0.0\nlast_time = None\nip_list = []\nalerts = pd.DataFrame()\nfeats = pd.DataFrame()\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0",
+        "peekOfCode": "URL = \"http://127.0.0.1:8000\"\ndef get_json(path: str):\n    r = requests.get(f\"{URL}{path}\", timeout=5)\n    r.raise_for_status()\n    return r.json()\nalerts_resp = get_json(\"/alerts\")\nfeatures_resp = get_json(\"/features\")\ndevices_resp = get_json(\"/devices\")\nalerts = pd.DataFrame(alerts_resp[\"alerts\"])\nfeats = pd.DataFrame(features_resp[\"features\"])",
         "detail": "app.web.dashboard",
         "documentation": {}
     },
     {
-        "label": "highest_anomaly_score",
+        "label": "alerts_resp",
         "kind": 5,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "highest_anomaly_score = 0.0\nlast_time = None\nip_list = []\nalerts = pd.DataFrame()\nfeats = pd.DataFrame()\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None",
+        "peekOfCode": "alerts_resp = get_json(\"/alerts\")\nfeatures_resp = get_json(\"/features\")\ndevices_resp = get_json(\"/devices\")\nalerts = pd.DataFrame(alerts_resp[\"alerts\"])\nfeats = pd.DataFrame(features_resp[\"features\"])\nst.set_page_config(page_title=\"Guardian AIGIS\", layout=\"wide\")\nif st.button(\"Refresh (Ingest → Build → Detect)\"):\n    adguard_ingest_from_file()\n    build_windows()\n    detect()",
         "detail": "app.web.dashboard",
         "documentation": {}
     },
     {
-        "label": "last_time",
+        "label": "features_resp",
         "kind": 5,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "last_time = None\nip_list = []\nalerts = pd.DataFrame()\nfeats = pd.DataFrame()\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:",
+        "peekOfCode": "features_resp = get_json(\"/features\")\ndevices_resp = get_json(\"/devices\")\nalerts = pd.DataFrame(alerts_resp[\"alerts\"])\nfeats = pd.DataFrame(features_resp[\"features\"])\nst.set_page_config(page_title=\"Guardian AIGIS\", layout=\"wide\")\nif st.button(\"Refresh (Ingest → Build → Detect)\"):\n    adguard_ingest_from_file()\n    build_windows()\n    detect()\nnum_devices = 0",
         "detail": "app.web.dashboard",
         "documentation": {}
     },
     {
-        "label": "ip_list",
+        "label": "devices_resp",
         "kind": 5,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "ip_list = []\nalerts = pd.DataFrame()\nfeats = pd.DataFrame()\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:\n    st.info(\"No alerts yet. Click Refresh above.\")",
+        "peekOfCode": "devices_resp = get_json(\"/devices\")\nalerts = pd.DataFrame(alerts_resp[\"alerts\"])\nfeats = pd.DataFrame(features_resp[\"features\"])\nst.set_page_config(page_title=\"Guardian AIGIS\", layout=\"wide\")\nif st.button(\"Refresh (Ingest → Build → Detect)\"):\n    adguard_ingest_from_file()\n    build_windows()\n    detect()\nnum_devices = 0\nhighest_anomaly_score = 0.0",
         "detail": "app.web.dashboard",
         "documentation": {}
     },
@@ -248,7 +363,7 @@
         "kind": 5,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "alerts = pd.DataFrame()\nfeats = pd.DataFrame()\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:\n    st.info(\"No alerts yet. Click Refresh above.\")\nif feats_p.exists():",
+        "peekOfCode": "alerts = pd.DataFrame(alerts_resp[\"alerts\"])\nfeats = pd.DataFrame(features_resp[\"features\"])\nst.set_page_config(page_title=\"Guardian AIGIS\", layout=\"wide\")\nif st.button(\"Refresh (Ingest → Build → Detect)\"):\n    adguard_ingest_from_file()\n    build_windows()\n    detect()\nnum_devices = 0\nhighest_anomaly_score = 0.0\nlast_time = None",
         "detail": "app.web.dashboard",
         "documentation": {}
     },
@@ -257,7 +372,43 @@
         "kind": 5,
         "importPath": "app.web.dashboard",
         "description": "app.web.dashboard",
-        "peekOfCode": "feats = pd.DataFrame()\nif alerts_p.exists():\n    alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:\n    st.info(\"No alerts yet. Click Refresh above.\")\nif feats_p.exists():\n    feats = pd.read_csv(feats_p, parse_dates=[\"minute\"])",
+        "peekOfCode": "feats = pd.DataFrame(features_resp[\"features\"])\nst.set_page_config(page_title=\"Guardian AIGIS\", layout=\"wide\")\nif st.button(\"Refresh (Ingest → Build → Detect)\"):\n    adguard_ingest_from_file()\n    build_windows()\n    detect()\nnum_devices = 0\nhighest_anomaly_score = 0.0\nlast_time = None\nip_list = []",
+        "detail": "app.web.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "num_devices",
+        "kind": 5,
+        "importPath": "app.web.dashboard",
+        "description": "app.web.dashboard",
+        "peekOfCode": "num_devices = 0\nhighest_anomaly_score = 0.0\nlast_time = None\nip_list = []\nif not alerts.empty:\n    # alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    alerts[\"minute\"] = pd.to_datetime(alerts[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None",
+        "detail": "app.web.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "highest_anomaly_score",
+        "kind": 5,
+        "importPath": "app.web.dashboard",
+        "description": "app.web.dashboard",
+        "peekOfCode": "highest_anomaly_score = 0.0\nlast_time = None\nip_list = []\nif not alerts.empty:\n    # alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    alerts[\"minute\"] = pd.to_datetime(alerts[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:",
+        "detail": "app.web.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "last_time",
+        "kind": 5,
+        "importPath": "app.web.dashboard",
+        "description": "app.web.dashboard",
+        "peekOfCode": "last_time = None\nip_list = []\nif not alerts.empty:\n    # alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    alerts[\"minute\"] = pd.to_datetime(alerts[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:\n    st.info(\"No alerts yet. Click Refresh above.\")",
+        "detail": "app.web.dashboard",
+        "documentation": {}
+    },
+    {
+        "label": "ip_list",
+        "kind": 5,
+        "importPath": "app.web.dashboard",
+        "description": "app.web.dashboard",
+        "peekOfCode": "ip_list = []\nif not alerts.empty:\n    # alerts = pd.read_csv(alerts_p, parse_dates=[\"minute\"])\n    alerts[\"minute\"] = pd.to_datetime(alerts[\"minute\"])\n    num_devices = alerts[\"client_ip\"].nunique() if not alerts.empty else 0\n    highest_anomaly_score = alerts[\"score\"].max() if not alerts.empty else 0.0\n    last_time = str(alerts[\"minute\"].max()) if not alerts.empty else None\nelse:\n    st.info(\"No alerts yet. Click Refresh above.\")\nif not feats.empty:",
         "detail": "app.web.dashboard",
         "documentation": {}
     }
