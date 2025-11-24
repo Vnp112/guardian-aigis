@@ -105,11 +105,62 @@ def refresh():
     adguard_ingest_from_file()
     build_windows()
     detect()
+    
+    # Make dir and text file to record last refresh timestamp
+    path = Path("data")
+    path.mkdir(parents=True, exist_ok=True)
+    last_refresh = path/"last_refresh.txt"
+    with open(last_refresh, "a") as f:
+        f.write(datetime.utcnow().isoformat() + "\n")
+    
     return {"status": "ok"}
 
-@app.post("/control/login")
-def login():
-    s = requests.Session()
-    s.auth = ('admin', 'pword')
-    r = s.get('http://192.168.8.1:3000/control/login')
-    return {"name": "admin", "password": "pword"}
+@app.get("/status")
+def get_status():
+    alerts_csv = Path("data/alerts.csv")
+    features_csv = Path("data/features.csv")
+    last_refresh_txt = Path("data/last_refresh.txt")
+    
+    num_devices = 0
+    num_feature_rows = 0
+    num_alert_rows = 0
+    last_feature_time = None
+    last_alert_time = None
+    last_refresh_timestamp = None
+    highest_anomaly_score = 0.0
+
+    
+    if features_csv.exists():
+        feats = pd.read_csv(features_csv, parse_dates=["minute"])
+        if not feats.empty:
+            num_feature_rows = len(feats)
+            num_devices = feats["client_ip"].nunique()
+            last_feature_time = feats["minute"].max().isoformat()
+    if alerts_csv.exists():
+        alerts = pd.read_csv(alerts_csv, parse_dates=["minute"])
+        if not alerts.empty:
+            num_alert_rows = len(alerts)
+            last_alert_time = alerts["minute"].max().isoformat()
+            highest_anomaly_score = alerts["score"].max()
+    
+    if last_refresh_txt.exists():
+        with open(last_refresh_txt, "r") as f:
+            last_refresh_timestamp = f.readlines()[-1]
+    
+    return {
+        "num_devices": num_devices,
+        "num_feature_rows": num_feature_rows,
+        "num_alert_rows": num_alert_rows,
+        "last_feature_time": last_feature_time,
+        "last_alert_time": last_alert_time,
+        "last_refresh_timestamp": last_refresh_timestamp,
+        "highest_anomaly_score": highest_anomaly_score
+    }
+        
+
+# @app.post("/control/login")
+# def login():
+#     s = requests.Session()
+#     s.auth = ('admin', 'pword')
+#     r = s.get('http://192.168.8.1:3000/control/login')
+#     return {"name": "admin", "password": "pword"}

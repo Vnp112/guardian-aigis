@@ -12,26 +12,27 @@ def get_json(path: str):
 st.set_page_config(page_title="Guardian AIGIS", layout="wide")
 
 if st.button("Refresh (Ingest → Build → Detect)"):
-    requests.post(f"{URL}/refresh", timeout=10)
+    requests.post(f"{URL}/refresh", timeout=30)
     
 alerts_resp = get_json("/alerts")
 features_resp = get_json("/features")
 devices_resp = get_json("/devices")
+status_resp = get_json("/status")
 
 alerts = pd.DataFrame(alerts_resp["alerts"])
 feats = pd.DataFrame(features_resp["features"])
 
-num_devices = 0
+# num_devices = 0
 highest_anomaly_score = 0.0
-last_time = None
+# last_time = None
 ip_list = []
 
 if not alerts.empty:
     # alerts = pd.read_csv(alerts_p, parse_dates=["minute"])
     alerts["minute"] = pd.to_datetime(alerts["minute"]).dt.tz_localize(None)
-    num_devices = alerts["client_ip"].nunique() if not alerts.empty else 0
-    highest_anomaly_score = alerts["score"].max() if not alerts.empty else 0.0
-    last_time = str(alerts["minute"].max()) if not alerts.empty else None
+    num_devices = status_resp.get("num_devices", 0)
+    highest_anomaly_score = status_resp.get("highest_anomaly_score", 0.0)
+    last_time = status_resp.get("last_feature_time", None)
 else:
     st.info("No alerts yet. Click Refresh above.")
 
@@ -41,12 +42,13 @@ if not feats.empty:
 else:
     st.info("No features yet. Click Refresh above.")
 
-st.title("Guardian AIGIS  ·  Phase 1 MVP")
+st.title("Guardian AIGIS")
 
-dev, max_time, last_timestamp = st.columns(3)
+dev, max_time, last_timestamp, last_refresh_timestamp = st.columns(4)
 dev.metric(label="Devices", value=num_devices, border=True)
 max_time.metric(label="Highest Anomaly Score", value=highest_anomaly_score, border=True)
 last_timestamp.metric(label="Last Time", value=last_time, border=True)
+last_refresh_timestamp.metric(label="Last Refresh Time", value=status_resp.get("last_refresh_timestamp"), border=True)
 
 if len(ip_list) > 0 and not alerts.empty:
     dropdown = st.selectbox(label="Pick Device", options=ip_list, index=None, placeholder="Select Device")
@@ -74,6 +76,6 @@ st.subheader("Top anomalies (latest minute)")
 st.dataframe(alerts[["client_ip","minute","qpm","uniq","avg_len","score"]])
 
 st.subheader("Recent feature windows")
-st.dataframe(feats.tail(50))
+st.dataframe(feats)
 
 
