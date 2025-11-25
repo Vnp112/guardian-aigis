@@ -5,14 +5,14 @@ from pathlib import Path
 URL = "http://127.0.0.1:8000"
 
 def get_json(path: str):
-    r = requests.get(f"{URL}{path}", timeout=5)
+    r = requests.get(f"{URL}{path}", timeout=10)
     r.raise_for_status()
     return r.json()
 
 st.set_page_config(page_title="Guardian AIGIS", layout="wide")
 
 if st.button("Refresh (Ingest → Build → Detect)"):
-    requests.post(f"{URL}/refresh", timeout=30)
+    requests.post(f"{URL}/refresh", timeout=50)
     
 alerts_resp = get_json("/alerts")
 features_resp = get_json("/features")
@@ -46,7 +46,7 @@ st.title("Guardian AIGIS")
 
 dev, max_time, last_timestamp, last_refresh_timestamp = st.columns(4)
 dev.metric(label="Devices", value=num_devices, border=True)
-max_time.metric(label="Highest Anomaly Score", value=highest_anomaly_score, border=True)
+max_time.metric(label="Highest Combined Anomaly Score", value=highest_anomaly_score, border=True)
 last_timestamp.metric(label="Last Time", value=last_time, border=True)
 last_refresh_timestamp.metric(label="Last Refresh Time", value=status_resp.get("last_refresh_timestamp"), border=True)
 
@@ -73,7 +73,9 @@ else:
     st.info("No alerts and devices to plot.")
 
 st.subheader("Top anomalies (latest minute)")
-st.dataframe(alerts[["client_ip","minute","qpm","uniq","avg_len","score"]])
+score_threshold = st.slider(label="Select Anomaly Filter Value", min_value = 0.0, max_value=1.0, value=0.0, step=0.01)
+filtered_alerts = alerts[alerts["combined_score"] >= score_threshold]
+st.dataframe(filtered_alerts[["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis", "norm_score", "norm_Mahalanobis", "combined_score"]])
 
 st.subheader("Recent feature windows")
 st.dataframe(feats)

@@ -141,7 +141,7 @@ def get_status():
         if not alerts.empty:
             num_alert_rows = len(alerts)
             last_alert_time = alerts["minute"].max().isoformat()
-            highest_anomaly_score = alerts["score"].max()
+            highest_anomaly_score = alerts["combined_score"].max()
     
     if last_refresh_txt.exists():
         with open(last_refresh_txt, "r") as f:
