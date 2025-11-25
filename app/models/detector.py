@@ -12,17 +12,21 @@ def Mahalanobis_dist(grp: pd.DataFrame):
     feat_cols = ["qpm", "uniq", "avg_len"]
     X = grp[feat_cols].to_numpy()
     #print(grp)
-    data = X[:-1]
-    if len(data) < 2:
-        return 0.0
-    last_row = X[-1]
-    mu = data.mean(axis=0)
-    cov = np.cov(data, rowvar=False)
+    #data = X[:-1]
+    if len(X) < 2:
+        return pd.Series([0.0] * len(grp), index=grp.index)
+    #last_row = X[-1]
+    mu = X.mean(axis=0)
+    cov = np.cov(X, rowvar=False)
     inv_cov = np.linalg.pinv(cov)
-    diff = last_row - mu
-    d2 = diff.T @ inv_cov @ diff
-    dist = float(np.sqrt(max(d2, 0.0)))
-    return dist
+    
+    distances = []
+    for x in X:
+        diff = x - mu
+        d2 = diff.T @ inv_cov @ diff
+        dist = float(np.sqrt(max(d2, 0.0)))
+        distances.append(dist)
+    return pd.Series(distances, index=grp.index)
 
 def detect(features_path=FEAT):
     if not Path(features_path).exists():
@@ -33,8 +37,10 @@ def detect(features_path=FEAT):
     if df.empty:
         print("Features file is empty.")
         return pd.DataFrame(columns=["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"])
-
+    
+    history_parts = []
     rows = []
+    
     for dev, grp in df.groupby("client_ip"):
         if len(grp) < MIN_HISTORY:
             continue
@@ -43,10 +49,12 @@ def detect(features_path=FEAT):
         model = IsolationForest(contamination="auto", random_state=0).fit(X)
         grp = grp.copy()
         grp["score"] = -model.score_samples(X)  # higher = more anomalous
-        mahalanobis_distance = Mahalanobis_dist(grp)
-        grp.loc[grp.index[-1], "Mahalanobis"] = mahalanobis_distance
+        grp["Mahalanobis"] = Mahalanobis_dist(grp)
+        history_parts.append(grp)
         rows.append(grp.iloc[-1][["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"]])
 
+    history_df = pd.concat(history_parts, ignore_index=True)
+    
     if not rows:
         print(f"No devices had at least {MIN_HISTORY} rows of history.")
         out = pd.DataFrame(columns=["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"])
@@ -56,13 +64,20 @@ def detect(features_path=FEAT):
     if "Mahalanobis" not in out.columns:
         out["Mahalanobis"] = 0.0
         
-    out["norm_score"] = (out["score"] - out["score"].min()) / (out["score"].max() - out["score"].min() + 0.0001)
-    out["norm_Mahalanobis"] = (out["Mahalanobis"] - out["Mahalanobis"].min()) / (out["Mahalanobis"].max() - out["Mahalanobis"].min() + 0.0001)
-    out["combined_score"] = 0.5 * out["norm_score"] + 0.5 * out["norm_Mahalanobis"]
-    out = out.sort_values("combined_score", ascending=False)
+    eps = 1e-9
 
+    s_min, s_max = history_df["score"].min(), history_df["score"].max()
+    history_df["norm_score"] = (history_df["score"] - s_min) / (s_max - s_min + eps)
+
+    m_min, m_max = history_df["Mahalanobis"].min(), history_df["Mahalanobis"].max()
+    history_df["norm_Mahalanobis"] = (history_df["Mahalanobis"] - m_min) / (m_max - m_min + eps)
+
+    history_df["combined_score"] = 0.5 * history_df["norm_score"] + 0.5 * history_df["norm_Mahalanobis"]
+
+    alerts_df = (history_df.sort_values("minute").groupby("client_ip").tail(1).sort_values("combined_score", ascending=False))
     # write alerts (even if empty) so the dashboard doesn't break
-    out.to_csv(ALERTS, index=False)
+    history_df.to_csv("data/anomaly_history.csv", index=False)
+    alerts_df.to_csv(ALERTS, index=False)
     return out
 
 if __name__ == "__main__":
