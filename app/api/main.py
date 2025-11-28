@@ -74,9 +74,10 @@ def get_devices():
     
 @app.get("/devices/{ip}/history")
 def get_device_history(ip: str, since: str | None = None):
-    path = Path("data/features.csv")
+    path = Path("data/anomaly_history.csv")
     if not path.exists():
         return {"ip": ip, "history": []}
+    
     features_df = load_file(path)
     features_df["minute"] = pd.to_datetime(features_df["minute"]).dt.tz_localize(None)
     ip_data = features_df[features_df["client_ip"] == ip].sort_values("minute")

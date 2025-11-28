@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import IsolationForest
+from sklearn.decomposition import PCA
 from pathlib import Path
 
 FEAT = Path("data/features.csv")
@@ -28,6 +29,13 @@ def Mahalanobis_dist(grp: pd.DataFrame):
         distances.append(dist)
     return pd.Series(distances, index=grp.index)
 
+def pca_features(history_df: pd.DataFrame, feat_cols: list[str]):
+    pca = PCA(n_components=2, random_state=0)
+    X = history_df[feat_cols].to_numpy()
+    pcs = pca.fit_transform(X)
+    history_df["pc1"] = pcs[:, 0]
+    history_df["pc2"] = pcs[:, 1]
+
 def detect(features_path=FEAT):
     if not Path(features_path).exists():
         print("No features file found. Run the feature builder first.")
@@ -39,7 +47,6 @@ def detect(features_path=FEAT):
         return pd.DataFrame(columns=["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"])
     
     history_parts = []
-    rows = []
     
     for dev, grp in df.groupby("client_ip"):
         if len(grp) < MIN_HISTORY:
@@ -51,19 +58,21 @@ def detect(features_path=FEAT):
         grp["score"] = -model.score_samples(X)  # higher = more anomalous
         grp["Mahalanobis"] = Mahalanobis_dist(grp)
         history_parts.append(grp)
-        rows.append(grp.iloc[-1][["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"]])
+       
+    if not history_parts:
+        print(f"No devices had at least {MIN_HISTORY} rows of history.")
+        # write empty files so API/UI don't break
+        empty_cols = ["client_ip","minute","qpm","uniq","avg_len","score","Mahalanobis",
+                    "norm_score","norm_Mahalanobis","combined_score"]
+        empty_history = pd.DataFrame(columns=empty_cols)
+        empty_history.to_csv("data/anomaly_history.csv", index=False)
+        empty_alerts = empty_history.copy()
+        empty_alerts.to_csv(ALERTS, index=False)
+        return empty_alerts
 
     history_df = pd.concat(history_parts, ignore_index=True)
     
-    if not rows:
-        print(f"No devices had at least {MIN_HISTORY} rows of history.")
-        out = pd.DataFrame(columns=["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"])
-    else:
-        out = pd.DataFrame(rows).sort_values("score", ascending=False)
-    
-    if "Mahalanobis" not in out.columns:
-        out["Mahalanobis"] = 0.0
-        
+    # Mahalanobis Distance
     eps = 1e-9
 
     s_min, s_max = history_df["score"].min(), history_df["score"].max()
@@ -71,16 +80,33 @@ def detect(features_path=FEAT):
 
     m_min, m_max = history_df["Mahalanobis"].min(), history_df["Mahalanobis"].max()
     history_df["norm_Mahalanobis"] = (history_df["Mahalanobis"] - m_min) / (m_max - m_min + eps)
-
+    
+    # PCA
+    feat_cols = ["qpm", "uniq", "avg_len"]
+    pca_features(history_df, feat_cols)
+    
+    # Combined score calculation (Isolation forest, Mahalanobis Distance)
     history_df["combined_score"] = 0.5 * history_df["norm_score"] + 0.5 * history_df["norm_Mahalanobis"]
 
     alerts_df = (history_df.sort_values("minute").groupby("client_ip").tail(1).sort_values("combined_score", ascending=False))
     # write alerts (even if empty) so the dashboard doesn't break
     history_df.to_csv("data/anomaly_history.csv", index=False)
     alerts_df.to_csv(ALERTS, index=False)
-    return out
+    return alerts_df
+
 
 if __name__ == "__main__":
-    grp = pd.read_csv(FEAT)
-    for dev, group in grp.groupby("client_ip"):
-        print(dev, Mahalanobis_dist(group))
+    df = pd.read_csv(FEAT, parse_dates=["minute"])
+    history_parts = []
+    for dev, grp in df.groupby("client_ip"):
+        X = grp[["qpm","uniq","avg_len"]]
+        model = IsolationForest(contamination="auto", random_state=0).fit(X)
+        grp = grp.copy()
+        grp["score"] = -model.score_samples(X)
+        grp["Mahalanobis"] = Mahalanobis_dist(grp)
+        history_parts.append(grp)
+    history_df = pd.concat(history_parts, ignore_index=True)
+
+    feat_cols = ["qpm", "uniq", "avg_len"]
+    pca_features(history_df, feat_cols)
+    print(history_df[["client_ip","minute","pc1","pc2"]].head())

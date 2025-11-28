@@ -69,13 +69,27 @@ if len(ip_list) > 0 and not alerts.empty:
 
             uniq_chart.subheader("Unique Domains")
             uniq_chart.line_chart(data=history.set_index("minute")["uniq"])
+            
+            
+            
+            pc1_col, pc2_col, pca_scatter = st.columns(3)
+            
+            pc1_col.subheader("PC1 Score Over Time")
+            pc1_col.line_chart(history.set_index("minute")["pc1"])
+            
+            pc2_col.subheader("PC2 Score Over Time")
+            pc2_col.line_chart(history.set_index("minute")["pc2"])
+            
+            pca_scatter.subheader("PC1 vs PC2 Scatter Plot")
+            pca_scatter.scatter_chart(history[["pc1", "pc2"]].rename(columns={"pc1": "x", "pc2": "y"}))
+            
 else:
     st.info("No alerts and devices to plot.")
 
 st.subheader("Top anomalies (latest minute)")
 score_threshold = st.slider(label="Select Anomaly Filter Value", min_value = 0.0, max_value=1.0, value=0.0, step=0.01)
 filtered_alerts = alerts[alerts["combined_score"] >= score_threshold]
-st.dataframe(filtered_alerts[["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis", "norm_score", "norm_Mahalanobis", "combined_score"]])
+st.dataframe(filtered_alerts[["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis", "norm_score", "norm_Mahalanobis", "pc1", "pc2", "combined_score"]])
 
 st.subheader("Recent feature windows")
 st.dataframe(feats)
