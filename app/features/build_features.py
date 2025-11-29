@@ -26,13 +26,16 @@ def build_windows(src_path=SRC, freq="1min"):
     if df.empty:
         OUT.write_text(""); return pd.DataFrame()
     df["minute"] = df["time"].dt.floor(freq)
+    df["first_seen"] = (df.groupby(["client_ip", "domain"])["time"].transform("min"))
+    df["is_new_domain"] = df["time"] == df["first_seen"]
     g = (df.groupby(["client_ip","minute"]).agg(
                 qpm=("domain","count"),
                 uniq=("domain","nunique"),
                 avg_len=("domain", lambda s: s.str.len().mean()),
                 len_std=("domain", lambda s: s.str.len().std()),
                 top_domain_ratio=("domain", top_domain_ratio_calc),
-                shannon_entropy=("domain", shannon_entropy_calc)
+                shannon_entropy=("domain", shannon_entropy_calc),
+                new_domain_ratio=("is_new_domain", "mean")
                 )
            .reset_index().fillna(0))
     g.to_csv(OUT, index=False)

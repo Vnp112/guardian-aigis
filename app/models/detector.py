@@ -8,11 +8,10 @@ FEAT = Path("data/features.csv")
 ALERTS = Path("data/alerts.csv")
 MIN_HISTORY = 2  # was 5; lower for sample data
 
-def Mahalanobis_dist(grp: pd.DataFrame):
+def Mahalanobis_dist(grp: pd.DataFrame, feat_cols: list[str]):
     #print(grp)
-    feat_cols = ["qpm", "uniq", "avg_len"]
+    #print(grp)
     X = grp[feat_cols].to_numpy()
-    #print(grp)
     #data = X[:-1]
     if len(X) < 2:
         return pd.Series([0.0] * len(grp), index=grp.index)
@@ -47,16 +46,17 @@ def detect(features_path=FEAT):
         return pd.DataFrame(columns=["client_ip","minute","qpm","uniq","avg_len","score", "Mahalanobis"])
     
     history_parts = []
-    
+    FEAT_COLS = ["qpm", "uniq", "avg_len", "len_std", "top_domain_ratio", "shannon_entropy", "new_domain_ratio"]
+
     for dev, grp in df.groupby("client_ip"):
         if len(grp) < MIN_HISTORY:
             continue
 
-        X = grp[["qpm","uniq","avg_len"]]
+        X = grp[FEAT_COLS].astype(float).to_numpy()
         model = IsolationForest(contamination="auto", random_state=0).fit(X)
         grp = grp.copy()
         grp["score"] = -model.score_samples(X)  # higher = more anomalous
-        grp["Mahalanobis"] = Mahalanobis_dist(grp)
+        grp["Mahalanobis"] = Mahalanobis_dist(grp, FEAT_COLS)
         history_parts.append(grp)
        
     if not history_parts:
@@ -82,8 +82,8 @@ def detect(features_path=FEAT):
     history_df["norm_Mahalanobis"] = (history_df["Mahalanobis"] - m_min) / (m_max - m_min + eps)
     
     # PCA
-    feat_cols = ["qpm", "uniq", "avg_len"]
-    pca_features(history_df, feat_cols)
+    FEAT_COLS = ["qpm", "uniq", "avg_len", "len_std", "top_domain_ratio", "shannon_entropy", "new_domain_ratio"]
+    pca_features(history_df, FEAT_COLS)
     
     # Combined score calculation (Isolation forest, Mahalanobis Distance)
     history_df["combined_score"] = 0.5 * history_df["norm_score"] + 0.5 * history_df["norm_Mahalanobis"]
@@ -98,12 +98,13 @@ def detect(features_path=FEAT):
 if __name__ == "__main__":
     df = pd.read_csv(FEAT, parse_dates=["minute"])
     history_parts = []
+    FEAT_COLS = ["qpm", "uniq", "avg_len", "len_std", "top_domain_ratio", "shannon_entropy", "new_domain_ratio"]
     for dev, grp in df.groupby("client_ip"):
         X = grp[["qpm","uniq","avg_len"]]
         model = IsolationForest(contamination="auto", random_state=0).fit(X)
         grp = grp.copy()
         grp["score"] = -model.score_samples(X)
-        grp["Mahalanobis"] = Mahalanobis_dist(grp)
+        grp["Mahalanobis"] = Mahalanobis_dist(grp, FEAT_COLS)
         history_parts.append(grp)
     history_df = pd.concat(history_parts, ignore_index=True)
 
