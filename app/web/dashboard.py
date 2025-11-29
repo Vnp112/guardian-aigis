@@ -12,7 +12,7 @@ def get_json(path: str):
 st.set_page_config(page_title="Guardian AIGIS", layout="wide")
 
 if st.button("Refresh (Ingest → Build → Detect)"):
-    requests.post(f"{URL}/refresh", timeout=50)
+    requests.post(f"{URL}/refresh", timeout=100)
     
 alerts_resp = get_json("/alerts")
 features_resp = get_json("/features")

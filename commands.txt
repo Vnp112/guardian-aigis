@@ -1,0 +1,40 @@
+First time
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/Vnp112/guardian-aigis.git
+git branch -M main
+git push -u origin main
+
+Everyday
+git status
+git add .
+git commit -m ""
+git push
+
+User/Password
+git config --global user.name "Your Name"
+git config --global user.email "your_email@example.com"
+
+Pull
+git pull
+
+If Git says your branch has diverged / local changes conflict
+git stash
+git pull
+git stash pop
+
+Check/Change Branch
+git branch
+git checkout main
+git checkout master
+
+File run commands
+python app/features/build_features.py
+python -m streamlit run app/web/dashboard.py
+python app/features/detector.py
+
+Activate environment, start backend/frontend
+source .venv/Scripts/activate (Windows)
+uvicorn app.api.main:app --reload
+python -m streamlit run app/web/dashboard.py
