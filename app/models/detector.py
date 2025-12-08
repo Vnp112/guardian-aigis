@@ -34,6 +34,7 @@ def pca_features(history_df: pd.DataFrame, feat_cols: list[str]):
     pcs = pca.fit_transform(X)
     history_df["pc1"] = pcs[:, 0]
     history_df["pc2"] = pcs[:, 1]
+    
 
 def detect(features_path=FEAT):
     if not Path(features_path).exists():

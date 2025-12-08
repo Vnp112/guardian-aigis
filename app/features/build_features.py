@@ -21,6 +21,17 @@ def shannon_entropy_calc(domains: pd.Series):
         entropy = -(probs * np.log2(probs)).sum()
         return entropy
 
+def KL_divergence_calc(df):
+    device_baseline = {}
+    for device in df["client_ip"].unique():
+        df_device = df[df.client_ip == device]
+        counts = df_device["domain"].value_counts()
+        total = counts.sum()
+        P_base = (counts / total).astype(float)
+        device_baseline[device] = P_base.to_dict()
+    return device_baseline
+    
+    
 def build_windows(src_path=SRC, freq="1min"):
     df = pd.read_csv(src_path, parse_dates=["time"])
     if df.empty:
@@ -28,6 +39,7 @@ def build_windows(src_path=SRC, freq="1min"):
     df["minute"] = df["time"].dt.floor(freq)
     df["first_seen"] = (df.groupby(["client_ip", "domain"])["time"].transform("min"))
     df["is_new_domain"] = df["time"] == df["first_seen"]
+    
     g = (df.groupby(["client_ip","minute"]).agg(
                 qpm=("domain","count"),
                 uniq=("domain","nunique"),
