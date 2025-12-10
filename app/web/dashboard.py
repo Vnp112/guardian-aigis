@@ -5,7 +5,7 @@ from pathlib import Path
 URL = "http://127.0.0.1:8000"
 
 def get_json(path: str):
-    r = requests.get(f"{URL}{path}", timeout=10)
+    r = requests.get(f"{URL}{path}", timeout=50)
     r.raise_for_status()
     return r.json()
 
@@ -13,7 +13,7 @@ st.set_page_config(page_title="Guardian AIGIS", layout="wide")
 
 if st.button("Refresh (Ingest → Build → Detect)"):
     # 1. Kick off Celery job
-    resp = requests.post(f"{URL}/refresh", timeout=10)
+    resp = requests.post(f"{URL}/refresh", timeout=50)
     task_id = resp.json().get("task_id")
 
     if task_id:

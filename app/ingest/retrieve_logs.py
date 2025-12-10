@@ -7,14 +7,22 @@ REMOTE = "/etc/AdGuardHome/data/querylog.json"
 LOCAL = Path("data/querylog.json")
 IDENTITY = Path.home() / ".ssh" / "id_ed25519"
 
+TAIL_LINES = 20000
+
 def pull_logs():
     cmd = [
-        "scp",
-        "-v", # debugging info
-        "-O", # use scp mode due to no sshfs
-        #"-l 8000" # bandwidth limit
+        "ssh",
         "-i", str(IDENTITY),
-        f"root@{ROUTER_IP}:{REMOTE}",
-        str(LOCAL),
+        f"root@{ROUTER_IP}",
+        f"busybox tail -n 20000 {REMOTE}"
     ]
-    subprocess.run(cmd, check=True)
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        raise RuntimeError(f"SSH tail failed: {result.stderr}")
+
+    LOCAL.parent.mkdir(parents=True, exist_ok=True)
+    LOCAL.write_text(result.stdout)
+
+    return LOCAL
