@@ -12,7 +12,25 @@ def get_json(path: str):
 st.set_page_config(page_title="Guardian AIGIS", layout="wide")
 
 if st.button("Refresh (Ingest → Build → Detect)"):
-    requests.post(f"{URL}/refresh", timeout=150)
+    # 1. Kick off Celery job
+    resp = requests.post(f"{URL}/refresh", timeout=10)
+    task_id = resp.json().get("task_id")
+
+    if task_id:
+        with st.spinner("Refreshing logs, building features, running detector..."):
+            import time
+            while True:
+                status = requests.get(f"{URL}/task-status/{task_id}", timeout=5).json()
+                state = status.get("state")
+
+                if state in ("SUCCESS", "FAILURE", "REVOKED"):
+                    break
+
+                time.sleep(2)
+
+        st.success("Refresh complete!")
+        st.rerun()
+
     
 alerts_resp = get_json("/alerts")
 features_resp = get_json("/features")
