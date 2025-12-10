@@ -10,7 +10,9 @@ IDENTITY = Path.home() / ".ssh" / "id_ed25519"
 def pull_logs():
     cmd = [
         "scp",
+        "-v", # debugging info
         "-O", # use scp mode due to no sshfs
+        #"-l 8000" # bandwidth limit
         "-i", str(IDENTITY),
         f"root@{ROUTER_IP}:{REMOTE}",
         str(LOCAL),

@@ -22,4 +22,4 @@ __pycache__/
 *.pyc
 
 # Data files
-data/querylog.json
+data/querylog.jsondata/querylog.json

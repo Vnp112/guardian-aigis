@@ -9,6 +9,8 @@ from app.features.build_features import build_windows
 from app.models.detector import detect
 from app.ingest.adguard_ingest import adguard_ingest_from_file
 from app.ingest.retrieve_logs import pull_logs
+from app.celery_app import celery_app
+from app.tasks import run_refresh
 
 app = FastAPI()
 
@@ -102,19 +104,24 @@ def get_features():
 
 @app.post("/refresh")
 def refresh():
-    pull_logs()
-    adguard_ingest_from_file()
-    build_windows()
-    detect()
+    job = run_refresh.delay()
     
     # Make dir and text file to record last refresh timestamp
     path = Path("data")
     path.mkdir(parents=True, exist_ok=True)
     last_refresh = path/"last_refresh.txt"
-    with open(last_refresh, "a") as f:
+    with open(last_refresh, "w") as f:
         f.write(datetime.utcnow().isoformat() + "\n")
     
-    return {"status": "ok"}
+    return {"task_id": job.id}
+
+@app.get("/task-status/{task_id}")
+def get_task_status(task_id: str):
+    result = celery_app.AsyncResult(task_id)
+    return {
+        "state": result.state,
+        "result": result.result
+    }
 
 @app.get("/status")
 def get_status():

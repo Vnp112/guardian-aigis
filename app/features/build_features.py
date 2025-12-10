@@ -39,7 +39,7 @@ def build_windows(src_path=SRC, freq="1min"):
     df["minute"] = df["time"].dt.floor(freq)
     df["first_seen"] = (df.groupby(["client_ip", "domain"])["time"].transform("min"))
     df["is_new_domain"] = df["time"] == df["first_seen"]
-    
+    device_baseline = KL_divergence_calc(df)
     g = (df.groupby(["client_ip","minute"]).agg(
                 qpm=("domain","count"),
                 uniq=("domain","nunique"),
@@ -50,6 +50,28 @@ def build_windows(src_path=SRC, freq="1min"):
                 new_domain_ratio=("is_new_domain", "mean")
                 )
            .reset_index().fillna(0))
+    KL_vals = []
+    epsilon = 1e-7
+    for idx, row in g.iterrows():
+        device = row["client_ip"]
+        min = row["minute"]
+        window_df = df[(df.client_ip == device) & (df.minute == min)]
+        counts = window_df["domain"].value_counts()
+        total = counts.sum()
+
+        P_t = (counts/total).astype(float)
+        P_base = device_baseline[device]
+        domains = set(P_t.keys()).union(set(P_base.keys()))
+        KL = 0
+        
+        for domain in domains:
+            p_t = P_t.get(domain, 0) + epsilon
+            p_base = P_base.get(domain, 0) + epsilon
+            KL += p_t * np.log(p_t / p_base)
+ 
+            
+        KL_vals.append(KL)
+    g["KL_divergence"] = KL_vals
     g.to_csv(OUT, index=False)
     return g
 
