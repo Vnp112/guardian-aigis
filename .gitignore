@@ -23,3 +23,5 @@ __pycache__/
 
 # Data files
 querylog.json
+data/querylog.json
+data/last_refresh.txt
