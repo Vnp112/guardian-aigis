@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from app.ingest.parse_querylog import parse_querylog
 
-SRC = Path("data/sample_dns.csv")
+SRC = Path("data/querylog.json")
 OUT = Path("data/features.csv")
 
 def top_domain_ratio_calc(domains: pd.Series):
@@ -79,7 +80,7 @@ def compute_KL_vectorized(window_probs, baseline_probs, epsilon=1e-7):
     
     
 def build_windows(src_path=SRC, freq="1min"):
-    df = pd.read_csv(src_path, parse_dates=["time"], on_bad_lines="skip", low_memory=False)
+    df = parse_querylog(SRC)
     if df.empty:
         OUT.write_text("") 
         return pd.DataFrame()
