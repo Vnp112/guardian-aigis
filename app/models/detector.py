@@ -26,6 +26,7 @@ def Mahalanobis_dist(grp: pd.DataFrame, feat_cols: list[str]):
 
     mu = X.mean(axis=0)
     cov = np.cov(X, rowvar=False)
+    cov += np.eye(cov.shape[0]) * 1e-9
     inv_cov = np.linalg.pinv(cov)
 
     dists = []
@@ -40,6 +41,7 @@ def Mahalanobis_dist(grp: pd.DataFrame, feat_cols: list[str]):
 def add_pca(history_df: pd.DataFrame, feat_cols: list[str]):
     pca = PCA(n_components=2, random_state=0)
     X = history_df[feat_cols].to_numpy()
+    X = np.nan_to_num(X)
     pcs = pca.fit_transform(X)
     history_df["pc1"] = pcs[:, 0]
     history_df["pc2"] = pcs[:, 1]
