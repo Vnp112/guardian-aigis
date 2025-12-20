@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 
-PATH = ("data/features.csv")
+FEAT = ("data/features.csv")
 
 client_ip = ["client_ip"]
 minute = ["minute"]
@@ -18,3 +18,4 @@ FEAT_COLS = [
     "KL_divergence",
 ]
 
+df = pd.read_csv(FEAT)
